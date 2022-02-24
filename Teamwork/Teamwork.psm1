@@ -2,32 +2,32 @@
 
 $Subs = @(
     @{
-        Path = 'Classes'
-        Export = $false
+        Path    = 'Classes'
+        Export  = $false
         Recurse = $true
-        Filter = '*.Class.ps1'
+        Filter  = '*.Class.ps1'
         Exclude = @(
-                '*.Tests.ps1'
+            '*.Tests.ps1'
         )
     } ,
 
     @{
-        Path = 'Private'
-        Export = $false
-        Recurse = $false
-        Filter = '*-*.ps1'
+        Path    = 'Private'
+        Export  = $false
+        Recurse = $true
+        Filter  = '*-*.ps1'
         Exclude = @(
-                '*.Tests.ps1'
+            '*.Tests.ps1'
         )
     } ,
 
     @{
-        Path = 'Public'
-        Export = $true
-        Recurse = $false
-        Filter = '*-*.ps1'
+        Path    = 'Public'
+        Export  = $true
+        Recurse = $true
+        Filter  = '*-*.ps1'
         Exclude = @(
-                '*.Tests.ps1'
+            '*.Tests.ps1'
         )
     }
 )
