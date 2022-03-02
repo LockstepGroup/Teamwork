@@ -13,14 +13,19 @@ function Connect-TeamworkServer {
     }
 
     PROCESS {
-        $ReturnObject = New-TeamworkServer
-        $ReturnObject.ApiToken = $ApiToken
-        $ReturnObject.BaseFqdn = $TeamworkFqdn
+        $Global:TeamworkServer = New-TeamworkServer
+        $Global:TeamworkServer.ApiToken = $ApiToken
+        $Global:TeamworkServer.BaseFqdn = $TeamworkFqdn
 
-        #TODO: need to add a test connection
+        # test connection
+        try {
+            $TestResponse = Invoke-TeamworkApiQuery -UriPath 'features.json'
+            $Global:TeamworkServer.Connected = $true
+        } catch {
+            Throw $_
+        }
     }
 
     END {
-        $Global:TeamworkServer = $ReturnObject
     }
 }

@@ -8,6 +8,9 @@ function Invoke-TeamworkApiQuery {
         [hashtable]$Query = @{},
 
         [Parameter(Mandatory = $false)]
+        [string]$Body = '',
+
+        [Parameter(Mandatory = $false)]
         [string]$Method = 'GET'
     )
 
@@ -20,7 +23,7 @@ function Invoke-TeamworkApiQuery {
             Throw "$VerbosePrefix no active connection to Wrike, please use Connect-TeamworkApiQuery to get started."
         } else {
             $Global:TeamworkServer.UriPath = $UriPath
-            $ReturnObject = $Global:TeamworkServer.invokeApiQuery($Query, $Method)
+            $ReturnObject = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
         }
     }
 
