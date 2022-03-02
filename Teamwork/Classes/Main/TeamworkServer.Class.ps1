@@ -19,6 +19,7 @@ Class TeamworkServer {
     [array]$UrlHistory
     [array]$RawQueryResultHistory
     [array]$QueryHistory
+    [array]$QueryParamHistory
     $LastError
     $LastResult
     $LastRawResult
@@ -27,9 +28,9 @@ Class TeamworkServer {
     #endregion Tracking
 
     # getApiUrl
-    [String] getApiUrl() {
+    [String] getApiUrl([string]$method) {
         if ($this.BaseFqdn) {
-            $url = "https://" + $this.BaseFqdn + '/projects/api/v3/' + $this.UriPath
+            $url = "https://" + $this.BaseFqdn + $this.getApiVersionString($method) + $this.UriPath
             return $url
         } else {
             return $null
@@ -65,13 +66,38 @@ Class TeamworkServer {
         return $base64Header
     }
 
+    # getApiVersionString
+    [string] getApiVersionString ([string]$method) {
+        $ApiVersionMap = @{}
+        $ApiVersionMap.'projects.json' = @{}
+        $ApiVersionMap.'projects.json'.'POST' = '/'
+
+        $CurrentUriPath = $this.UriPath
+        $thisVersion = $ApiVersionMap.$CurrentUriPath.$method
+
+        if (-not $thisVersion) {
+            $thisVersion = '/projects/api/v3/'
+        }
+
+        return $thisVersion
+    }
+
+    #region apiVersion
+    ########################################################################
+
+
+
+    ########################################################################
+    #endregion apiVersion
+
     #region invokeApiQuery
     ########################################################################
 
     [psobject] invokeApiQuery([hashtable]$queryString, [string]$method, [string]$body) {
 
         # Wrike uses the query string as a body attribute, keeping this function as is for now and just using an empty querystring
-        $url = $this.getApiUrl()
+        $url = $this.getApiUrl($method)
+
 
         # Populate Query/Url History
         $this.QueryHistory += $queryString
@@ -86,6 +112,7 @@ Class TeamworkServer {
                 }
                 'POST' {
                     $QueryParams.Body = $body
+                    $QueryParams.ContentType = 'application/json'
                 }
                 'GET' {
                     $QueryParams.Uri += $this.createQueryString($queryString)
@@ -96,6 +123,8 @@ Class TeamworkServer {
             $QueryParams.Headers = @{
                 'Authorization' = "Basic $($this.encodeAuthorizationHeader())"
             }
+
+            $this.QueryParamHistory += $QueryParams
 
             $rawResult = Invoke-RestMethod @QueryParams
         } catch {
