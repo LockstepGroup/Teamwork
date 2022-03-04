@@ -2,7 +2,10 @@ function Get-TeamworkCompany {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory = $false)]
-        [hashtable]$Query = @{}
+        [hashtable]$Query = @{},
+
+        [Parameter(Mandatory = $false)]
+        [int]$CompanyId
     )
 
     BEGIN {
@@ -10,7 +13,13 @@ function Get-TeamworkCompany {
         $ReturnObject = @()
 
         $QueryParams = @{}
-        $QueryParams.UriPath = 'companies.json'
+
+        if ($CompanyId) {
+            $QueryParams.UriPath = "companies/$CompanyId`.json"
+        } else {
+            $QueryParams.UriPath = 'companies.json'
+        }
+
         $QueryParams.Query = $Query
     }
 
