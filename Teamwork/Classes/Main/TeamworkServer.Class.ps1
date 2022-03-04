@@ -8,6 +8,7 @@ Class TeamworkServer {
 
     [array]$CustomFields
     [array]$Companies
+    [array]$ProjectCategories
 
     ########################################################################
     #endregion storedTeamworkProperties
@@ -71,6 +72,9 @@ Class TeamworkServer {
         $ApiVersionMap = @{}
         $ApiVersionMap.'projects.json' = @{}
         $ApiVersionMap.'projects.json'.'POST' = '/'
+
+        $ApiVersionMap.'projectCategories.json' = @{}
+        $ApiVersionMap.'projectCategories.json'.'GET' = '/'
 
         $CurrentUriPath = $this.UriPath
         $thisVersion = $ApiVersionMap.$CurrentUriPath.$method
