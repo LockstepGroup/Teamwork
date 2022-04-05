@@ -9,6 +9,8 @@ Class TeamworkServer {
     [array]$CustomFields
     [array]$Companies
     [array]$ProjectCategories
+    [array]$People
+    [array]$Tags
 
     ########################################################################
     #endregion storedTeamworkProperties
@@ -22,8 +24,9 @@ Class TeamworkServer {
     [array]$QueryHistory
     [array]$QueryParamHistory
     $LastError
-    $LastResult
-    $LastRawResult
+    hidden $LastResult
+    hidden $LastRawResult
+    hidden $RateLimiter = [System.Collections.ArrayList]@()
 
     ########################################################################
     #endregion Tracking
@@ -72,12 +75,33 @@ Class TeamworkServer {
         $ApiVersionMap = @{}
         $ApiVersionMap.'projects.json' = @{}
         $ApiVersionMap.'projects.json'.'POST' = '/'
+        $ApiVersionMap.'projects.json'.'PUT' = '/'
 
         $ApiVersionMap.'projectCategories.json' = @{}
         $ApiVersionMap.'projectCategories.json'.'GET' = '/'
 
-        $CurrentUriPath = $this.UriPath
+        $CurrentUriPath = $this.UriPath # -replace '\d+', ''
+
         $thisVersion = $ApiVersionMap.$CurrentUriPath.$method
+
+        if (-not $thisVersion) {
+            switch -Regex ($CurrentUriPath) {
+                'projects/\d+/people.json' {
+                    switch ($method) {
+                        'POST' {
+                            $thisVersion = '/'
+                        }
+                    }
+                }
+                'projects/\d+/complete.json' {
+                    switch ($method) {
+                        'PUT' {
+                            $thisVersion = '/'
+                        }
+                    }
+                }
+            }
+        }
 
         if (-not $thisVersion) {
             $thisVersion = '/projects/api/v3/'
@@ -106,9 +130,10 @@ Class TeamworkServer {
         # Populate Query/Url History
         $this.QueryHistory += $queryString
 
+        $QueryParams = @{}
+        $rawResult = $null
         # try query
         try {
-            $QueryParams = @{}
             $QueryParams.Uri = $url
             switch ($method) {
                 'PUT' {
@@ -118,7 +143,14 @@ Class TeamworkServer {
                     $QueryParams.Body = $body
                     $QueryParams.ContentType = 'application/json'
                 }
+                'PATCH' {
+                    $QueryParams.Body = $body
+                    $QueryParams.ContentType = 'application/json'
+                }
                 'GET' {
+                    $QueryParams.Uri += $this.createQueryString($queryString)
+                }
+                'DELETE' {
                     $QueryParams.Uri += $this.createQueryString($queryString)
                 }
             }
@@ -130,7 +162,29 @@ Class TeamworkServer {
 
             $this.QueryParamHistory += $QueryParams
 
+            $TimeStamp = [DateTimeOffset]::Now.ToUnixTimeMilliseconds()
+            $this.RateLimiter += $TimeStamp
+            if ($this.RateLimiter.Count -gt 150) {
+                $TimeDifference = ($TimeStamp - $this.RateLimiter[-150])
+                $TimeDifferenceInSeconds = $TimeDifference / 1000
+                if ($TimeDifference -lt 60000) {
+                    Write-Warning "Rate Limit hit, waiting $TimeDifferenceInSeconds seconds"
+                    Start-Sleep -Milliseconds $TimeDifference
+                }
+            }
+
             $rawResult = Invoke-RestMethod @QueryParams
+        } catch [System.Net.Http.HttpRequestException] {
+            $RetryCount = 0
+            do {
+                Start-Sleep -Seconds 3
+                Write-Warning "Generic connection error, waiting 3 seconds and trying again"
+                $rawResult = Invoke-RestMethod @QueryParams
+                $RetryCount++
+            } while ($RetryCount -lt 3)
+            if ($null -eq $rawResult) {
+                Throw "Retries failed, check your connection"
+            }
         } catch {
             Throw $_
         }

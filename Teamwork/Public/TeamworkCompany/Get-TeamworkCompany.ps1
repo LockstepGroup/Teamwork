@@ -5,6 +5,9 @@ function Get-TeamworkCompany {
         [hashtable]$Query = @{},
 
         [Parameter(Mandatory = $false)]
+        [int]$PageSize = 500,
+
+        [Parameter(Mandatory = $false)]
         [int]$CompanyId
     )
 
@@ -20,6 +23,7 @@ function Get-TeamworkCompany {
             $QueryParams.UriPath = 'companies.json'
         }
 
+        $Query.pagesize = $PageSize
         $QueryParams.Query = $Query
     }
 

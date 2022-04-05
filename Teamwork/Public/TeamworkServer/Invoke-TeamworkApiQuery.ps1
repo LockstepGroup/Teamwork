@@ -20,7 +20,7 @@ function Invoke-TeamworkApiQuery {
 
     PROCESS {
         if (-not $Global:TeamworkServer) {
-            Throw "$VerbosePrefix no active connection to Wrike, please use Connect-TeamworkApiQuery to get started."
+            Throw "$VerbosePrefix no active connection to Teamwork, please use Connect-TeamworkServer to get started."
         } else {
             $Global:TeamworkServer.UriPath = $UriPath
             $ReturnObject = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)

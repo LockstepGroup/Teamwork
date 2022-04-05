@@ -1,8 +1,18 @@
 function Get-TeamworkProject {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'NoProjectId')]
     Param (
-        [Parameter(Mandatory = $false)]
-        [hashtable]$Query = @{}
+        [Parameter(Mandatory = $false, ParameterSetName = 'NoProjectId')]
+        [hashtable]$Query = @{},
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'NoProjectId')]
+        [int]$PageSize = 500,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'ProjectId')]
+        [int64]$ProjectId,
+
+        [Parameter(Mandatory = $false, ParameterSetName = 'NoProjectId')]
+        [ValidateSet("Active", "Current", "Late", "Upcoming", "Completed", "Archived")]
+        [string]$Status
     )
 
     BEGIN {
@@ -10,13 +20,24 @@ function Get-TeamworkProject {
         $ReturnObject = @()
 
         $QueryParams = @{}
-        $QueryParams.UriPath = 'projects.json'
-        $QueryParams.Query = $Query
+        if ($ProjectId) {
+            $QueryParams.UriPath = 'projects/' + [string]$ProjectId + '.json'
+        } else {
+            $QueryParams.UriPath = 'projects.json'
+        }
+
         if ($Query.include) {
             $Query.include += ',customfields,customfieldprojects,projectCategories'
         } else {
             $Query.include = 'customfields,customfieldprojects,projectCategories'
         }
+
+        if ($Status) {
+            $Query.projectStatuses = $Status
+        }
+
+        $Query.pagesize = $PageSize
+        $QueryParams.Query = $Query
 
         # update other teamwork values if needed
         if ($Global:TeamworkServer.CustomFields.Count -eq 0) {
@@ -31,7 +52,13 @@ function Get-TeamworkProject {
     PROCESS {
         $Response = Invoke-TeamworkApiQuery @QueryParams
 
-        foreach ($entry in $Response.projects) {
+        if ($Response.project) {
+            $ResponseLoop = $Response.project
+        } else {
+            $ResponseLoop = $Response.projects
+        }
+
+        foreach ($entry in $ResponseLoop) {
             $New = New-TeamworkProject
 
             $New.Id = $entry.id
