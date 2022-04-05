@@ -20,10 +20,12 @@ function Set-TeamworkProject {
     PROCESS {
         if ($TeamworkProject.Id -gt 0) {
             $QueryParams.Method = 'PUT'
+            $QueryParams.UriPath = 'projects/' + $TeamworkProject.Id + '.json'
         }
         if ($Complete) {
             $QueryParams.UriPath = "projects/" + $TeamworkProject.id + "/complete.json"
         }
+
         $QueryParams.Body = $TeamworkProject.ToJson()
         try {
             $Response = Invoke-TeamworkApiQuery @QueryParams

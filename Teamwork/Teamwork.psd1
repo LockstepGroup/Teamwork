@@ -12,7 +12,7 @@
     RootModule         = 'Teamwork'
 
     # Version number of this module.
-    ModuleVersion      = '1.0.2'
+    ModuleVersion      = '1.0.3'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport  = '*'
+    FunctionsToExport  = @('Add-TeamworkPersonToProject','Connect-TeamworkServer','Get-TeamworkBudget','Get-TeamworkCategory','Get-TeamworkCompany','Get-TeamworkCustomField','Get-TeamworkPerson','Get-TeamworkProject','Get-TeamworkTag','Get-TeamworkTimeEntry','Invoke-TeamworkApiQuery','New-TeamworkBudget','New-TeamworkCategory','New-TeamworkCompany','New-TeamworkCustomField','New-TeamworkPerson','New-TeamworkProject','New-TeamworkServer','New-TeamworkTag','New-TeamworkTimeEntry','Remove-TeamworkProject','Remove-TeamworkTimeEntry','Set-TeamworkBudget','Set-TeamworkCompany','Set-TeamworkProject','Set-TeamworkTimeEntry')
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport    = '*'

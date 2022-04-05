@@ -100,6 +100,13 @@ Class TeamworkServer {
                         }
                     }
                 }
+                'projects\/\d+\.json' {
+                    switch ($method) {
+                        'PUT' {
+                            $thisVersion = '/'
+                        }
+                    }
+                }
             }
         }
 
@@ -122,10 +129,8 @@ Class TeamworkServer {
     ########################################################################
 
     [psobject] invokeApiQuery([hashtable]$queryString, [string]$method, [string]$body) {
-
         # Wrike uses the query string as a body attribute, keeping this function as is for now and just using an empty querystring
         $url = $this.getApiUrl($method)
-
 
         # Populate Query/Url History
         $this.QueryHistory += $queryString
@@ -138,6 +143,9 @@ Class TeamworkServer {
             switch ($method) {
                 'PUT' {
                     $QueryParams.Uri += $this.createQueryString($queryString)
+                    if ('' -ne $body) {
+                        $QueryParams.Body = $body
+                    }
                 }
                 'POST' {
                     $QueryParams.Body = $body
