@@ -12,6 +12,8 @@ Class TeamworkProject {
     [string]$Status
     [string]$SubStatus
 
+    [bool]$Archived
+
     # generic custom fields
     [array]$CustomField
 
@@ -68,6 +70,11 @@ Class TeamworkProject {
         # Tags
         if ($this.TagId.Count -gt 0) {
             $thisProject.tagIds = $this.TagId -join ','
+        }
+
+        # Archived
+        if ($this.Archived) {
+            $thisProject.status = 'inactive'
         }
 
         $returnObject = @{ 'project' = $thisProject }
