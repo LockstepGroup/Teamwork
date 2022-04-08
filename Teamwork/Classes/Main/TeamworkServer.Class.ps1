@@ -182,7 +182,7 @@ Class TeamworkServer {
             }
 
             $rawResult = Invoke-RestMethod @QueryParams
-        } catch [System.Net.Http.HttpRequestException] {
+        } catch [System.Net.Http.HttpRequestException], [System.Management.Automation.RuntimeException] {
             $RetryCount = 0
             do {
                 Start-Sleep -Seconds 3
