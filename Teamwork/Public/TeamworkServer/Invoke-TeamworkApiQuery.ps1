@@ -39,7 +39,6 @@ function Invoke-TeamworkApiQuery {
                     $Query.page++
                     $thisResult = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
                     foreach ($property in $ResponseProperties) {
-                        Write-Warning "$VerbosePrefix adding $property"
                         if ($property -eq 'included') {
                             if (-not $Query.include) {
                                 continue
