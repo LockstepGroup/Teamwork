@@ -31,6 +31,7 @@ function Invoke-TeamworkApiQuery {
 
             # pull these so we can add the correct values no matter what the call is in the while loop
             $ResponseProperties = ($thisResult | Get-Member -Type NoteProperty).Name
+            $ResponseProperties = $ResponseProperties | Where-Object { $_ -ne 'meta' }
 
             # process all pages if they exist
             if ($thisResult.meta.page.hasMore) {
@@ -38,6 +39,12 @@ function Invoke-TeamworkApiQuery {
                     $Query.page++
                     $thisResult = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
                     foreach ($property in $ResponseProperties) {
+                        Write-Warning "$VerbosePrefix adding $property"
+                        if ($property -eq 'included') {
+                            if (-not $Query.include) {
+                                continue
+                            }
+                        }
                         $ReturnObject.$property += $thisResult.$property
                     }
                 } while ($thisResult.meta.page.hasMore)
