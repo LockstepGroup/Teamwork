@@ -12,7 +12,7 @@
     RootModule         = 'Teamwork'
 
     # Version number of this module.
-    ModuleVersion      = '1.0.7'
+    ModuleVersion      = '1.0.9'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()

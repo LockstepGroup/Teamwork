@@ -16,7 +16,6 @@ function Invoke-TeamworkApiQuery {
 
     BEGIN {
         $VerbosePrefix = "Invoke-TeamworkApiQuery:"
-        $ReturnObject = @()
     }
 
     PROCESS {
@@ -28,14 +27,21 @@ function Invoke-TeamworkApiQuery {
             # first result
             $Query.page = 1
             $thisResult = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
-            $ReturnObject += $thisResult
+            $ReturnObject = $thisResult
+
+            # pull these so we can add the correct values no matter what the call is in the while loop
+            $ResponseProperties = ($thisResult | Get-Member -Type NoteProperty).Name
 
             # process all pages if they exist
-            do {
-                $Query.page++
-                $thisResult = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
-                $ReturnObject += $thisResult
-            } while ($thisResult.meta.page.hasMore)
+            if ($thisResult.meta.page.hasMore) {
+                do {
+                    $Query.page++
+                    $thisResult = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
+                    foreach ($property in $ResponseProperties) {
+                        $ReturnObject.$property += $thisResult.$property
+                    }
+                } while ($thisResult.meta.page.hasMore)
+            }
         }
     }
 
