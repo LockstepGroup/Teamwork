@@ -5,7 +5,8 @@ function Get-TeamworkTimeEntry {
         [hashtable]$Query = @{},
 
         [Parameter(Mandatory = $false)]
-        [int]$PageSize = 2000,
+        [ValidateRange(1, 500)]
+        [int]$PageSize = 500,
 
         [Parameter(Mandatory = $true)]
         [int64]$ProjectId

@@ -5,6 +5,7 @@ function Get-TeamworkPerson {
         [hashtable]$Query = @{},
 
         [Parameter(Mandatory = $false)]
+        [ValidateRange(1, 500)]
         [int]$PageSize = 500,
 
         [Parameter(Mandatory = $True, ValueFromPipeline = $True, ParameterSetName = 'TeamworkProject')]

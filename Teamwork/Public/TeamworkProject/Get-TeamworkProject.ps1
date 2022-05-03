@@ -5,6 +5,7 @@ function Get-TeamworkProject {
         [hashtable]$Query = @{},
 
         [Parameter(Mandatory = $false, ParameterSetName = 'NoProjectId')]
+        [ValidateRange(1, 500)]
         [int]$PageSize = 500,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'ProjectId')]

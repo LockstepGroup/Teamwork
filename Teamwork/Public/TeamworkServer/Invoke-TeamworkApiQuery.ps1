@@ -16,6 +16,7 @@ function Invoke-TeamworkApiQuery {
 
     BEGIN {
         $VerbosePrefix = "Invoke-TeamworkApiQuery:"
+        $ReturnObject = @()
     }
 
     PROCESS {
@@ -23,7 +24,18 @@ function Invoke-TeamworkApiQuery {
             Throw "$VerbosePrefix no active connection to Teamwork, please use Connect-TeamworkServer to get started."
         } else {
             $Global:TeamworkServer.UriPath = $UriPath
-            $ReturnObject = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
+
+            # first result
+            $Query.page = 1
+            $thisResult = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
+            $ReturnObject += $thisResult
+
+            # process all pages if they exist
+            do {
+                $Query.page++
+                $thisResult = $Global:TeamworkServer.invokeApiQuery($Query, $Method, $Body)
+                $ReturnObject += $thisResult
+            } while ($thisResult.meta.page.hasMore)
         }
     }
 
